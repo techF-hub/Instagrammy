@@ -1,6 +1,8 @@
 const ImageModel = require('../models/image');
 const path = require('path');
 const fs = require('fs');
+const md5 = require('md5');
+const CommentModel = require('../models/comment');
 
 module.exports = {
   index: (req, res) => {
@@ -15,7 +17,16 @@ module.exports = {
         image.views += 1;
         viewModel.image = image;
         image.save();
-        res.render('image', viewModel);
+        CommentModel.find(
+          { image_id: image._id },
+          {},
+          { sort: { timestamp: 1 } },
+          function(err, comments) {
+            if (err) throw err;
+            viewModel.comments = comments;
+            res.render('image', viewModel);
+          },
+        );
       } else {
         res.redirect('/');
       }
@@ -50,6 +61,21 @@ module.exports = {
     res.send('The image:like POST controller');
   },
   comment: (req, res) => {
-    res.send('The image:comment POST controller');
+    ImageModel.findOne({ filename: { $regex: req.params.image_id } }, function(
+      err,
+      image,
+    ) {
+      if (!err && image) {
+        const newComment = new CommentModel(req.body);
+        newComment.gravatar = md5(newComment.email);
+        newComment.image_id = image._id;
+        newComment.save(function(err, comment) {
+          if (err) throw err;
+          res.redirect('/images/' + image.uniqueId + '#' + comment._id);
+        });
+      } else {
+        res.redirect('/');
+      }
+    });
   },
 }
