@@ -5,6 +5,7 @@
 **Model 定义了数据模型，View 定义了用户界面，而 Controller 则定义了相应的业务逻辑。**
 
 ## 基础中间件
+*npm install express-handlebars body-parser cookie-parser morgan method-override errorhandler*
 * morgan：用于记录日志的中间件，对于开发调试和生产监控都很有用；
 * bodyParser：用于解析客户端请求的中间件，包括 HTML 表单和 JSON 请求；
 * methodOverride：为老的浏览器提供 REST 请求的兼容性支持；
